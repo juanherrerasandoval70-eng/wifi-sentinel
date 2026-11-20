@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -121,29 +122,40 @@ public class MainActivity extends Activity {
                     "if(document.getElementById('sentinel-inject-bar'))return;" +
                     "var bar=document.createElement('div');" +
                     "bar.id='sentinel-inject-bar';" +
-                    "bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:999999;background:#000;color:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;font-family:sans-serif;font-size:12px;border-bottom:2px solid #22c55e;';" +
-                    "bar.innerHTML='<button onclick=\"window.location.href=\\'file:///android_asset/index.html\\'\" style=\"background:#fff;color:#000;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;\">← Sentinel</button>'+" +
-                    "'<span style=\"font-family:monospace;font-size:11px;\">MAC: " + cleanColonMac + "</span>'+" +
-                    "'<div style=\"display:flex;gap:6px;\">'+" +
-                    "'<button onclick=\"window.location.href=\\'/secu_macfilter_src.asp\\'\" style=\"background:#27272a;color:#fff;border:1px solid #52525b;padding:6px 8px;border-radius:6px;font-weight:600;cursor:pointer;\">Tabla MAC</button>'+" +
-                    "'<button id=\"sentinel-autofill-btn\" style=\"background:#e11d48;color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;\">Cortar MAC</button></div>';" +
+                    "bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999999;background:#09090b;color:#fff;padding:8px 10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;border-bottom:2px solid #22c55e;box-shadow:0 4px 16px rgba(0,0,0,0.6);';" +
+                    "bar.innerHTML='<div style=\"display:flex;align-items:center;gap:6px;\">'+" +
+                    "'<button id=\"sentinel-back-btn\" style=\"background:#22c55e;color:#000;border:none;padding:6px 10px;border-radius:6px;font-weight:800;font-size:11px;cursor:pointer;\">← Sentinel</button>'+" +
+                    "'<span style=\"font-family:monospace;font-size:11px;background:#18181b;padding:4px 6px;border-radius:4px;border:1px solid #3f3f46;\">MAC: " + cleanColonMac + "</span>'+" +
+                    "'</div>'+" +
+                    "'<div style=\"display:flex;gap:4px;flex-wrap:wrap;align-items:center;\">'+" +
+                    "'<button id=\"sentinel-autofill-btn\" style=\"background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;\">⚡ Auto-Pegar MAC</button>'+" +
+                    "'<button onclick=\"window.location.href=\\'/secu_macfilter_src.asp\\'\" style=\"background:#27272a;color:#d4d4d8;border:1px solid #52525b;padding:4px 6px;border-radius:4px;font-size:10px;\">Boa/Fibra</button>'+" +
+                    "'<button onclick=\"window.location.href=\\'/userRpm/WlanMacFilterRpm.htm\\'\" style=\"background:#27272a;color:#d4d4d8;border:1px solid #52525b;padding:4px 6px;border-radius:4px;font-size:10px;\">TP-Link</button>'+" +
+                    "'<button onclick=\"window.location.href=\\'/main.html\\'\" style=\"background:#27272a;color:#d4d4d8;border:1px solid #52525b;padding:4px 6px;border-radius:4px;font-size:10px;\">Tenda</button>'+" +
+                    "'<button onclick=\"window.location.href=\\'/html/bbsp/wlanmacfilter/wlanmacfilter.asp\\'\" style=\"background:#27272a;color:#d4d4d8;border:1px solid #52525b;padding:4px 6px;border-radius:4px;font-size:10px;\">Huawei</button>'+" +
+                    "'<button onclick=\"window.location.href=\\'/getpage.gch?pid=1002&nextpage=net_wlan_macfilt_t.gch\\'\" style=\"background:#27272a;color:#d4d4d8;border:1px solid #52525b;padding:4px 6px;border-radius:4px;font-size:10px;\">ZTE</button>'+" +
+                    "'</div>';" +
                     "document.body.appendChild(bar);" +
                     "document.body.style.paddingTop='54px';" +
-                    "var u=document.getElementById('userInput')||document.querySelector('input[name=\"username\"]');" +
-                    "var p=document.getElementById('psdInput')||document.querySelector('input[name=\"psd\"],input[type=\"password\"]');" +
+                    "document.getElementById('sentinel-back-btn').onclick=function(){window.location.href='file:///android_asset/index.html';};" +
+                    "var u=document.getElementById('userInput')||document.querySelector('input[name=\"username\"],input[name=\"user\"],input[id*=\"user\"]');" +
+                    "var p=document.getElementById('psdInput')||document.querySelector('input[name=\"psd\"],input[name=\"password\"],input[type=\"password\"]');" +
                     "if(u&&!u.value){u.value='" + pendingRouterUser + "';}" +
                     "if(p&&!p.value){p.value='" + pendingRouterPass + "';}" +
-                    "var mInput=document.querySelector('input[name=\"mac\"]');" +
-                    "if(mInput&&!mInput.value){mInput.value='" + cleanColonMac + "';}" +
                     "function autoCutMac(){" +
-                    "  if(window.location.pathname.indexOf('login.asp')!==-1&&document.cmlogin){" +
-                    "    document.cmlogin.submit();return;" +
+                    "  var targetMac='" + cleanColonMac + "';" +
+                    "  if(window.location.pathname.indexOf('login.asp')!==-1&&document.cmlogin){document.cmlogin.submit();return;}" +
+                    "  if(window.location.pathname.indexOf('secu_macfilter_src_add.asp')!==-1&&document.form){document.form.mac.value=targetMac;document.form.submit();return;}" +
+                    "  if(window.location.pathname.indexOf('secu_macfilter_src.asp')!==-1){window.location.href='/secu_macfilter_src_add.asp';return;}" +
+                    "  var inputs=document.querySelectorAll('input,textarea');var pasted=false;" +
+                    "  for(var i=0;i<inputs.length;i++){" +
+                    "    var inp=inputs[i];var n=(inp.name||'').toLowerCase();var id=(inp.id||'').toLowerCase();var ph=(inp.placeholder||'').toLowerCase();" +
+                    "    if(n.indexOf('mac')!==-1||id.indexOf('mac')!==-1||ph.indexOf('mac')!==-1||n.indexOf('hw')!==-1){" +
+                    "      inp.value=targetMac;inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));inp.style.border='2px solid #ef4444';pasted=true;" +
+                    "    }" +
                     "  }" +
-                    "  if(window.location.pathname.indexOf('secu_macfilter_src_add.asp')!==-1&&document.form){" +
-                    "    document.form.mac.value='" + cleanColonMac + "';" +
-                    "    document.form.submit();return;" +
-                    "  }" +
-                    "  window.location.href='/secu_macfilter_src_add.asp';" +
+                    "  if(pasted){alert('¡MAC '+targetMac+' colocada en el formulario! Presiona Guardar / Aplicar en la pantalla.');}" +
+                    "  else{navigator.clipboard.writeText(targetMac);alert('MAC '+targetMac+' copiada al portapapeles. Pégala en el campo de Filtro MAC de tu módem.');}" +
                     "}" +
                     "document.getElementById('sentinel-autofill-btn').onclick=autoCutMac;" +
                     "})();";
@@ -548,6 +560,14 @@ public class MainActivity extends Activity {
                 }
             }
             mac = mac.toLowerCase().replace("-", ":");
+            boolean isRand = false;
+            String cleanMac = mac.replace(":", "").replace("-", "").toLowerCase();
+            if (cleanMac.length() == 12) {
+                char c = cleanMac.charAt(1);
+                if (c == '2' || c == '6' || c == 'a' || c == 'e') {
+                    isRand = true;
+                }
+            }
 
             // Resolver Nombre Real del Celular / Equipo (1. DNS PTR directo al Router UDP 53, 2. mDNS UDP 5353, 3. NetBIOS UDP 137, 4. Nombre DHCP del Router)
             String hostname = "Desconocido";
@@ -583,22 +603,24 @@ public class MainActivity extends Activity {
                         hostname = rName;
                     }
                 }
+                String lastOctet = ip.substring(ip.lastIndexOf('.') + 1);
+
                 if ("Desconocido".equals(hostname)) {
-                    String lastOctet = ip.substring(ip.lastIndexOf('.') + 1);
-                    if (openPorts.contains(Integer.valueOf(554)) || openPorts.contains(Integer.valueOf(8000))) {
-                        hostname = "Cámara IP (." + lastOctet + ")";
-                    } else if (openPorts.contains(Integer.valueOf(445)) || openPorts.contains(Integer.valueOf(3389))) {
-                        hostname = "Ordenador PC (." + lastOctet + ")";
-                    } else if (openPorts.contains(Integer.valueOf(62078))) {
-                        hostname = "Apple iPhone (." + lastOctet + ")";
-                    } else if (mac.startsWith("d4:58:00") || mac.startsWith("b6:c7:1b")) {
-                        hostname = "Samsung Galaxy (." + lastOctet + ")";
-                    } else if (mac.startsWith("fc:aa:14")) {
-                        hostname = "Ordenador PC (." + lastOctet + ")";
-                    } else if (mac.startsWith("36:a3:bd") || mac.startsWith("00:0c:e7")) {
-                        hostname = "ZTE Blade (." + lastOctet + ")";
-                    } else if (mac.startsWith("28:7b:11")) {
-                        hostname = "Android Smart (." + lastOctet + ")";
+                    String recognizedVendor = resolveVendorFromMac(mac, openPorts);
+                    if (!recognizedVendor.isEmpty()) {
+                        hostname = recognizedVendor + " (." + lastOctet + ")";
+                    } else if (isRand) {
+                        if (openPorts.contains(Integer.valueOf(62078))) {
+                            hostname = "Apple iPhone (MAC Privada ." + lastOctet + ")";
+                        } else if (openPorts.contains(Integer.valueOf(445)) || openPorts.contains(Integer.valueOf(3389))) {
+                            hostname = "Ordenador PC (MAC Privada ." + lastOctet + ")";
+                        } else if (openPorts.contains(Integer.valueOf(554)) || openPorts.contains(Integer.valueOf(8000))) {
+                            hostname = "Cámara IP (MAC Privada ." + lastOctet + ")";
+                        } else {
+                            hostname = "Celular Android (MAC Privada ." + lastOctet + ")";
+                        }
+                    } else {
+                        hostname = "Dispositivo WiFi (." + lastOctet + ")";
                     }
                 }
             }
@@ -623,7 +645,53 @@ public class MainActivity extends Activity {
                    "\",\"dev_type\":\"" + devType + "\",\"latency_ms\":" + Math.max(0.4, latencyMs) +
                    ",\"is_gateway\":" + isGateway + ",\"is_local_host\":" + isSelf +
                    ",\"is_blocked\":" + isBlockedRouter +
+                   ",\"is_randomized_mac\":" + isRand +
                    ",\"open_ports\":" + portsJson.toString() + "}";
+        }
+
+        private static String resolveVendorFromMac(String mac, List<Integer> openPorts) {
+            if (mac == null || mac.length() < 8) return "";
+            String m = mac.toLowerCase().replace("-", ":");
+            if (m.startsWith("d4:58:00") || m.startsWith("b6:c7:1b") || m.startsWith("80:f7:a6") || m.startsWith("e4:b0:21") ||
+                m.startsWith("50:01:d9") || m.startsWith("00:07:ab") || m.startsWith("00:12:47") || m.startsWith("18:3a:2d") ||
+                m.startsWith("24:4b:03") || m.startsWith("34:c0:59") || m.startsWith("44:78:3e") || m.startsWith("5c:e8:eb") ||
+                m.startsWith("94:35:0a") || m.startsWith("a8:06:00")) {
+                return "Samsung Galaxy";
+            }
+            if (m.startsWith("00:03:93") || m.startsWith("00:05:02") || m.startsWith("00:0a:27") || m.startsWith("00:0a:95") ||
+                m.startsWith("00:1c:b3") || m.startsWith("f0:18:98") || m.startsWith("b8:78:2e") || m.startsWith("38:f9:d3") ||
+                m.startsWith("70:ec:e4") || m.startsWith("a4:83:e7") || m.startsWith("bc:d1:1f") || m.startsWith("dc:a9:04") ||
+                openPorts.contains(Integer.valueOf(62078))) {
+                return "Apple iPhone";
+            }
+            if (m.startsWith("28:7b:11") || m.startsWith("34:ce:00") || m.startsWith("64:90:c1") || m.startsWith("74:a7:ea") ||
+                m.startsWith("80:64:9a") || m.startsWith("18:f0:e4") || m.startsWith("50:64:2b") || m.startsWith("68:54:5a") ||
+                m.startsWith("78:11:dc") || m.startsWith("98:2c:bc") || m.startsWith("a4:cf:99") || m.startsWith("c4:0b:cb")) {
+                return "Xiaomi Redmi";
+            }
+            if (m.startsWith("36:a3:bd") || m.startsWith("00:0c:e7") || m.startsWith("dc:02:8e") || m.startsWith("98:f5:37") ||
+                m.startsWith("74:b5:7e") || m.startsWith("c8:7b:5b")) {
+                return "ZTE Blade";
+            }
+            if (m.startsWith("00:0c:e5") || m.startsWith("00:14:9a") || m.startsWith("40:88:05") || m.startsWith("e4:90:7e") ||
+                m.startsWith("00:23:68") || m.startsWith("04:4b:ed")) {
+                return "Motorola Moto";
+            }
+            if (m.startsWith("00:18:82") || m.startsWith("00:1e:10") || m.startsWith("00:25:9e") || m.startsWith("00:e0:fc") ||
+                m.startsWith("04:25:c5") || m.startsWith("10:51:72") || m.startsWith("40:4d:8e") || m.startsWith("68:a0:3e")) {
+                return "Huawei Mobile";
+            }
+            if (m.startsWith("fc:aa:14") || m.startsWith("00:15:5d") || m.startsWith("00:50:56") || m.startsWith("a4:4c:c8") ||
+                m.startsWith("b4:2e:99") || m.startsWith("00:1a:a0") || m.startsWith("18:66:da") || m.startsWith("34:17:eb") ||
+                openPorts.contains(Integer.valueOf(445)) || openPorts.contains(Integer.valueOf(3389))) {
+                return "Ordenador PC";
+            }
+            if (m.startsWith("10:52:1c") || m.startsWith("24:0a:c4") || m.startsWith("30:ae:a4") || m.startsWith("84:0d:8e") ||
+                m.startsWith("00:1f:6b") || m.startsWith("00:26:e2") || m.startsWith("00:01:4a") || m.startsWith("cc:6e:a4") ||
+                openPorts.contains(Integer.valueOf(554)) || openPorts.contains(Integer.valueOf(8000))) {
+                return "Dispositivo Smart IoT";
+            }
+            return "";
         }
     }
 
@@ -1007,47 +1075,158 @@ public class MainActivity extends Activity {
             }
         }
 
-        @JavascriptInterface
-        public String injectRouterMacBlockNative(String gatewayIp, String mac, String action, String user, String pass) {
+        public static String detectRouterBrand(String gatewayIp) {
+            if (gatewayIp == null || gatewayIp.isEmpty()) return "universal";
+            HttpURLConnection conn = null;
             try {
-                if (user != null && !user.isEmpty()) pendingRouterUser = user;
-                if (pass != null && !pass.isEmpty()) pendingRouterPass = pass;
-                pendingInjectMac = mac;
+                URL url = new URL("http://" + gatewayIp + "/");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(1800);
+                conn.setReadTimeout(1800);
+                conn.setInstanceFollowRedirects(true);
+                conn.setRequestMethod("GET");
+                String server = conn.getHeaderField("Server");
+                String auth = conn.getHeaderField("WWW-Authenticate");
+                int code = conn.getResponseCode();
 
-                String cleanHex = (mac != null) ? mac.replace(":", "").replace("-", "").toLowerCase() : "";
-                String selfDynamicMac = detectActiveMac();
-                String selfClean = (selfDynamicMac != null) ? selfDynamicMac.replace(":", "").toLowerCase() : "";
-                if ("block".equalsIgnoreCase(action) &&
-                    ("b6c71be6d241".equals(cleanHex) || "80f7a662a5dc".equals(cleanHex) || "80f7a662a5db".equals(cleanHex) ||
-                     "fcaa145d9f68".equals(cleanHex) || (!selfClean.isEmpty() && selfClean.equals(cleanHex)))) {
-                    return "{\"router_reached\":true,\"mac_hex\":\"" + cleanHex + "\",\"gateway\":\"" + gatewayIp + "\",\"rule_ok\":false,\"message\":\"Protección activa: Equipo propio protegido contra autobloqueo\"}";
-                }
-                if ("block".equalsIgnoreCase(action) && (cleanHex.startsWith("025a2da1") || "000000000000".equals(cleanHex) || cleanHex.length() != 12)) {
-                    return "{\"router_reached\":true,\"mac_hex\":\"" + cleanHex + "\",\"gateway\":\"" + gatewayIp + "\",\"rule_ok\":false,\"message\":\"Actualizando tabla MAC real del router... Ejecuta Escanear e inténtalo de nuevo.\"}";
+                BufferedReader br = null;
+                StringBuilder sb = new StringBuilder();
+                try {
+                    InputStream is = (code >= 400) ? conn.getErrorStream() : conn.getInputStream();
+                    if (is != null) {
+                        br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                        String l;
+                        int c = 0;
+                        while ((l = br.readLine()) != null && c < 50) {
+                            sb.append(l).append("\n");
+                            c++;
+                        }
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    if (br != null) {
+                        try { br.close(); } catch (Exception ignored) {}
+                    }
                 }
 
-                String macColons = mac.toLowerCase().replace("-", ":");
-                String macDashed = mac.toLowerCase().replace(":", "-");
-                if (cleanHex.length() == 12) {
-                    macColons = cleanHex.substring(0, 2) + ":" + cleanHex.substring(2, 4) + ":" +
-                                cleanHex.substring(4, 6) + ":" + cleanHex.substring(6, 8) + ":" +
-                                cleanHex.substring(8, 10) + ":" + cleanHex.substring(10, 12);
-                    macDashed = macColons.replace(":", "-");
-                }
+                String sLow = (server != null) ? server.toLowerCase() : "";
+                String bLow = sb.toString().toLowerCase();
+                String aLow = (auth != null) ? auth.toLowerCase() : "";
 
-                // 0. Liberar cualquier sesión previa colgada en el router
+                if (sLow.contains("boa") || bLow.contains("realtek") || bLow.contains("boaform") || bLow.contains("secu_macfilter")) {
+                    return "realtek_boa";
+                }
+                if (sLow.contains("tp-link") || bLow.contains("tp-link") || bLow.contains("tplinkwifi") || bLow.contains("wlanmacfilter") || aLow.contains("tp-link")) {
+                    return "tplink";
+                }
+                if (sLow.contains("tenda") || bLow.contains("tenda") || bLow.contains("tendawifi") || bLow.contains("goform")) {
+                    return "tenda";
+                }
+                if (sLow.contains("huawei") || bLow.contains("huawei") || bLow.contains("echolife") || bLow.contains("bbsp")) {
+                    return "huawei";
+                }
+                if (sLow.contains("zte") || bLow.contains("zxhn") || bLow.contains("getpage.gch")) {
+                    return "zte";
+                }
+                return "universal";
+            } catch (Exception e) {
+                return "universal";
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }
+
+        private static boolean postRawFormWithAuth(String urlStr, String rawBody, String referer, String user, String pass) {
+            HttpURLConnection conn = null;
+            try {
+                byte[] bytes = (rawBody != null) ? rawBody.getBytes("UTF-8") : new byte[0];
+                URL url = new URL(urlStr);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(2500);
+                conn.setReadTimeout(2500);
+                conn.setInstanceFollowRedirects(true);
+                conn.setRequestMethod(rawBody != null ? "POST" : "GET");
+                if (rawBody != null) {
+                    conn.setDoOutput(true);
+                    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                }
+                if (referer != null) conn.setRequestProperty("Referer", referer);
+                if (user != null && pass != null && (!user.isEmpty() || !pass.isEmpty())) {
+                    String basic = Base64.encodeToString((user + ":" + pass).getBytes("UTF-8"), Base64.NO_WRAP);
+                    conn.setRequestProperty("Authorization", "Basic " + basic);
+                }
+                if (rawBody != null && bytes.length > 0) {
+                    OutputStream os = conn.getOutputStream();
+                    os.write(bytes);
+                    os.flush();
+                    os.close();
+                }
+                int code = conn.getResponseCode();
+                return (code >= 200 && code < 400);
+            } catch (Exception ignored) {
+                return false;
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }
+
+        private static boolean injectTpLink(String gatewayIp, String macDashed, String action, String user, String pass) {
+            try {
+                String subUrl;
+                if ("unblock".equalsIgnoreCase(action) || "unblock_all".equalsIgnoreCase(action)) {
+                    subUrl = "http://" + gatewayIp + "/userRpm/WlanMacFilterRpm.htm?Page=1&Del=Del&mac=" + URLEncoder.encode(macDashed, "UTF-8");
+                } else {
+                    subUrl = "http://" + gatewayIp + "/userRpm/WlanMacFilterRpm.htm?Page=1&Add=Add&mac=" + URLEncoder.encode(macDashed, "UTF-8") + "&desc=SentinelCut&action=1";
+                }
+                return postRawFormWithAuth(subUrl, null, "http://" + gatewayIp + "/userRpm/WlanMacFilterRpm.htm", user, pass);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static boolean injectTenda(String gatewayIp, String macColons, String action, String user, String pass) {
+            try {
+                String body;
+                if ("unblock".equalsIgnoreCase(action) || "unblock_all".equalsIgnoreCase(action)) {
+                    body = "module1=macFilter&macFilterType=none&mac=" + URLEncoder.encode(macColons, "UTF-8");
+                } else {
+                    body = "module1=macFilter&macFilterType=black&mac=" + URLEncoder.encode(macColons, "UTF-8");
+                }
+                return postRawForm("http://" + gatewayIp + "/goform/setMacFilterCfg", body, "http://" + gatewayIp + "/");
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static boolean injectHuawei(String gatewayIp, String macColons, String action, String user, String pass) {
+            try {
+                String body = "Action=" + ("unblock".equalsIgnoreCase(action) ? "del" : "add") + "&Mac=" + URLEncoder.encode(macColons, "UTF-8");
+                return postRawForm("http://" + gatewayIp + "/html/bbsp/wlanmacfilter/wlanmacfilter.asp", body, "http://" + gatewayIp + "/");
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static boolean injectZte(String gatewayIp, String macColons, String action, String user, String pass) {
+            try {
+                String body = "action=" + ("unblock".equalsIgnoreCase(action) ? "del" : "add") + "&mac=" + URLEncoder.encode(macColons, "UTF-8");
+                return postRawForm("http://" + gatewayIp + "/getpage.gch?pid=1002&nextpage=net_wlan_macfilt_t.gch", body, "http://" + gatewayIp + "/");
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        private static boolean injectRealtekBoa(String gatewayIp, String macColons, String macDashed, String action, String user, String pass) {
+            try {
                 postRawForm("http://" + gatewayIp + "/boaform/admin/formLogout", "save=Logout&submit-url=%2Fadmin%2Flogin.asp", "http://" + gatewayIp + "/");
-
-                // 1. Iniciar sesión en /boaform/admin/formLogin
-                String loginBody = "challenge=&username=" + URLEncoder.encode(pendingRouterUser, "UTF-8") +
-                                   "&psd=" + URLEncoder.encode(pendingRouterPass, "UTF-8") +
+                String loginBody = "challenge=&username=" + URLEncoder.encode(user, "UTF-8") +
+                                   "&psd=" + URLEncoder.encode(pass, "UTF-8") +
                                    "&save=Login&submit-url=%2Fadmin%2Flogin.asp&postSecurityFlag=";
-                boolean loginOk = postRawForm("http://" + gatewayIp + "/boaform/admin/formLogin", loginBody, "http://" + gatewayIp + "/admin/login.asp");
+                postRawForm("http://" + gatewayIp + "/boaform/admin/formLogin", loginBody, "http://" + gatewayIp + "/admin/login.asp");
 
                 String rteUrl = "http://" + gatewayIp + "/boaform/admin/formRteMacFilter";
                 String rteRef = "http://" + gatewayIp + "/secu_macfilter_src.asp";
                 boolean ruleOk = false;
-
                 Pattern ruleEntryPat = Pattern.compile("it_nr\\(\"(\\d+)\",\\s*new it\\(\"devname\",\\s*\"([^\"]*)\"\\),\\s*new it\\(\"mac\",\\s*\"([^\"]+)\"\\)");
 
                 if ("unblock_all".equalsIgnoreCase(action)) {
@@ -1101,7 +1280,6 @@ public class MainActivity extends Activity {
                     postRawForm(rteUrl, "macFilterEnble=on&action=sw&submit-url=%2Fsecu_macfilter_src.asp", rteRef);
                     postRawForm(rteUrl, "macFilterMode=off&action=md&submit-url=%2Fsecu_macfilter_src.asp", rteRef);
 
-                    // Limpiar reglas sintéticas viejas si existen y verificar si la MAC real ya está presente
                     String htmlBefore = fetchHttpText(rteRef);
                     boolean alreadyExists = false;
                     if (htmlBefore != null && !htmlBefore.isEmpty()) {
@@ -1135,7 +1313,6 @@ public class MainActivity extends Activity {
                         ruleOk = true;
                     }
 
-                    // Verificar que la regla quedó grabada en el router
                     String htmlAfter = fetchHttpText(rteRef);
                     if (htmlAfter != null && (htmlAfter.toLowerCase().contains(macDashed) || htmlAfter.toLowerCase().contains(macColons))) {
                         ruleOk = true;
@@ -1143,17 +1320,80 @@ public class MainActivity extends Activity {
                 }
 
                 postRawForm("http://" + gatewayIp + "/boaform/admin/formLogout", "save=Logout&submit-url=%2Fadmin%2Flogin.asp", "http://" + gatewayIp + "/");
+                return ruleOk;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public String detectRouterModelNative(String gatewayIp) {
+            return detectRouterBrand(gatewayIp);
+        }
+
+        @JavascriptInterface
+        public String injectRouterMacBlockNative(String gatewayIp, String mac, String action, String user, String pass) {
+            try {
+                if (user != null && !user.isEmpty()) pendingRouterUser = user;
+                if (pass != null && !pass.isEmpty()) pendingRouterPass = pass;
+                pendingInjectMac = mac;
+
+                String cleanHex = (mac != null) ? mac.replace(":", "").replace("-", "").toLowerCase() : "";
+                String selfDynamicMac = detectActiveMac();
+                String selfClean = (selfDynamicMac != null) ? selfDynamicMac.replace(":", "").toLowerCase() : "";
+                if ("block".equalsIgnoreCase(action) &&
+                    ("b6c71be6d241".equals(cleanHex) || "80f7a662a5dc".equals(cleanHex) || "80f7a662a5db".equals(cleanHex) ||
+                     "fcaa145d9f68".equals(cleanHex) || (!selfClean.isEmpty() && selfClean.equals(cleanHex)))) {
+                    return "{\"router_reached\":true,\"mac_hex\":\"" + cleanHex + "\",\"gateway\":\"" + gatewayIp + "\",\"rule_ok\":false,\"message\":\"Protección activa: Equipo propio protegido contra autobloqueo\"}";
+                }
+                if ("block".equalsIgnoreCase(action) && (cleanHex.startsWith("025a2da1") || "000000000000".equals(cleanHex) || cleanHex.length() != 12)) {
+                    return "{\"router_reached\":true,\"mac_hex\":\"" + cleanHex + "\",\"gateway\":\"" + gatewayIp + "\",\"rule_ok\":false,\"message\":\"Actualizando tabla MAC real del router... Ejecuta Escanear e inténtalo de nuevo.\"}";
+                }
+
+                String macColons = mac.toLowerCase().replace("-", ":");
+                String macDashed = mac.toLowerCase().replace(":", "-");
+                if (cleanHex.length() == 12) {
+                    macColons = cleanHex.substring(0, 2) + ":" + cleanHex.substring(2, 4) + ":" +
+                                cleanHex.substring(4, 6) + ":" + cleanHex.substring(6, 8) + ":" +
+                                cleanHex.substring(8, 10) + ":" + cleanHex.substring(10, 12);
+                    macDashed = macColons.replace(":", "-");
+                }
+
+                String detectedBrand = detectRouterBrand(gatewayIp);
+                boolean ruleOk = false;
+                String brandName = "Realtek Boa / Fibra ONT";
+
+                if ("tplink".equals(detectedBrand)) {
+                    brandName = "TP-Link Archer / WR";
+                    ruleOk = injectTpLink(gatewayIp, macDashed, action, pendingRouterUser, pendingRouterPass);
+                } else if ("tenda".equals(detectedBrand)) {
+                    brandName = "Tenda Wireless";
+                    ruleOk = injectTenda(gatewayIp, macColons, action, pendingRouterUser, pendingRouterPass);
+                } else if ("huawei".equals(detectedBrand)) {
+                    brandName = "Huawei EchoLife";
+                    ruleOk = injectHuawei(gatewayIp, macColons, action, pendingRouterUser, pendingRouterPass);
+                } else if ("zte".equals(detectedBrand)) {
+                    brandName = "ZTE ZXHN";
+                    ruleOk = injectZte(gatewayIp, macColons, action, pendingRouterUser, pendingRouterPass);
+                } else {
+                    brandName = "Realtek Boa / Fibra ONT";
+                    ruleOk = injectRealtekBoa(gatewayIp, macColons, macDashed, action, pendingRouterUser, pendingRouterPass);
+                    if (!ruleOk && !"realtek_boa".equals(detectedBrand)) {
+                        ruleOk = injectTpLink(gatewayIp, macDashed, action, pendingRouterUser, pendingRouterPass);
+                        if (ruleOk) brandName = "TP-Link Universal";
+                    }
+                }
 
                 vibrate(40);
                 String msg;
                 if (ruleOk) {
-                    msg = "Módem " + gatewayIp + ": MAC real " + macDashed + ("unblock".equalsIgnoreCase(action) ? " liberada de Lista Negra" : " bloqueada en Lista Negra del router");
+                    msg = "Módem [" + brandName + " " + gatewayIp + "]: MAC " + macDashed + ("unblock".equalsIgnoreCase(action) ? " liberada de Lista Negra" : " bloqueada en Lista Negra del router");
                 } else {
-                    msg = "Error en el módem " + gatewayIp + ": No se pudo aplicar el bloqueo. Verifica que la contraseña del módem sea la correcta en la sección Dueño.";
+                    msg = "Módem [" + brandName + " " + gatewayIp + "]: Si la inyección directa no aplicó por panel personalizado, usa el botón Auto-MAC Router para inyección asistida.";
                 }
-                return "{\"router_reached\":" + (loginOk || ruleOk) +
+                return "{\"router_reached\":" + (ruleOk || !"universal".equals(detectedBrand)) +
                        ",\"mac_hex\":\"" + macDashed + "\",\"gateway\":\"" + gatewayIp +
-                       "\",\"rule_ok\":" + ruleOk + ",\"message\":\"" + msg + "\"}";
+                       "\",\"rule_ok\":" + ruleOk + ",\"driver\":\"" + detectedBrand + "\",\"message\":\"" + msg + "\"}";
             } catch (Exception e) {
                 return "{\"router_reached\":false,\"mac_hex\":\"\",\"gateway\":\"" + gatewayIp + "\"}";
             }
@@ -1163,14 +1403,26 @@ public class MainActivity extends Activity {
             if (mac != null && !mac.isEmpty()) pendingInjectMac = mac;
             if (user != null && !user.isEmpty()) pendingRouterUser = user;
             if (pass != null && !pass.isEmpty()) pendingRouterPass = pass;
-            try {
-                postRawForm("http://" + gatewayIp + "/boaform/admin/formLogout", "save=Logout&submit-url=%2Fadmin%2Flogin.asp", "http://" + gatewayIp + "/");
-                String loginBody = "challenge=&username=" + URLEncoder.encode(pendingRouterUser, "UTF-8") +
-                                   "&psd=" + URLEncoder.encode(pendingRouterPass, "UTF-8") +
-                                   "&save=Login&submit-url=%2Fadmin%2Flogin.asp&postSecurityFlag=";
-                postRawForm("http://" + gatewayIp + "/boaform/admin/formLogin", loginBody, "http://" + gatewayIp + "/admin/login.asp");
-            } catch (Exception ignored) {}
-            String targetUrl = "http://" + gatewayIp + "/secu_macfilter_src.asp";
+            String brand = detectRouterBrand(gatewayIp);
+            String targetUrl = "http://" + gatewayIp + "/";
+            if ("realtek_boa".equals(brand)) {
+                try {
+                    postRawForm("http://" + gatewayIp + "/boaform/admin/formLogout", "save=Logout&submit-url=%2Fadmin%2Flogin.asp", "http://" + gatewayIp + "/");
+                    String loginBody = "challenge=&username=" + URLEncoder.encode(pendingRouterUser, "UTF-8") +
+                                       "&psd=" + URLEncoder.encode(pendingRouterPass, "UTF-8") +
+                                       "&save=Login&submit-url=%2Fadmin%2Flogin.asp&postSecurityFlag=";
+                    postRawForm("http://" + gatewayIp + "/boaform/admin/formLogin", loginBody, "http://" + gatewayIp + "/admin/login.asp");
+                } catch (Exception ignored) {}
+                targetUrl = "http://" + gatewayIp + "/secu_macfilter_src.asp";
+            } else if ("tplink".equals(brand)) {
+                targetUrl = "http://" + gatewayIp + "/userRpm/WlanMacFilterRpm.htm";
+            } else if ("tenda".equals(brand)) {
+                targetUrl = "http://" + gatewayIp + "/main.html";
+            } else if ("huawei".equals(brand)) {
+                targetUrl = "http://" + gatewayIp + "/html/bbsp/wlanmacfilter/wlanmacfilter.asp";
+            } else if ("zte".equals(brand)) {
+                targetUrl = "http://" + gatewayIp + "/getpage.gch?pid=1002&nextpage=net_wlan_macfilt_t.gch";
+            }
             activity.runOnUiThread(new LoadUrlRunner(webView, targetUrl));
         }
 

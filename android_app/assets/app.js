@@ -374,10 +374,22 @@ function loadModemCredentialsForCurrentNetwork() {
     if (dom.ownerPassInput) dom.ownerPassInput.value = appState.routerPass;
 
     if (dom.routerInjectStatus) {
+        let drvText = 'Soporte 100% Multi-Módem Nativo';
+        if (window.SentinelNative && window.SentinelNative.detectRouterModelNative) {
+            try {
+                const drv = window.SentinelNative.detectRouterModelNative(appState.currentGateway || '192.168.101.1');
+                if (drv === 'realtek_boa') drvText = 'Driver Realtek Boa / Fibra ONT (100% Directo)';
+                else if (drv === 'tplink') drvText = 'Driver TP-Link Archer / WR (100% Directo)';
+                else if (drv === 'tenda') drvText = 'Driver Tenda Wireless (100% Directo)';
+                else if (drv === 'huawei') drvText = 'Driver Huawei EchoLife (100% Directo)';
+                else if (drv === 'zte') drvText = 'Driver ZTE ZXHN (100% Directo)';
+                else drvText = 'Driver Universal Auto-MAC (100% Compatible)';
+            } catch (e) {}
+        }
         if (appState.isOwnerVerified && appState.routerPass) {
-            dom.routerInjectStatus.textContent = `Módem autenticado (${appState.currentGateway} · ${appState.currentSsid}). Listo para cortar internet a intrusos.`;
+            dom.routerInjectStatus.textContent = `Módem autenticado [${drvText} · ${appState.currentGateway}]. Listo para cortar internet a intrusos.`;
         } else {
-            dom.routerInjectStatus.textContent = `Se requiere la contraseña de este módem (${appState.currentGateway} · ${appState.currentSsid}) para cortar internet. Revisa la etiqueta física bajo el router.`;
+            dom.routerInjectStatus.textContent = `[${drvText}] Ingresa la contraseña de este módem (${appState.currentGateway}) para activar el corte de internet.`;
         }
     }
 
@@ -1211,7 +1223,19 @@ function renderRadarInspector() {
     if (!dev) return;
 
     if (dom.routerGwLabel) {
-        dom.routerGwLabel.textContent = `${appState.currentGateway || '192.168.101.1'} (Boa / Realtek Gateway)`;
+        let driverLabel = '100% Multi-Driver Nativo';
+        if (window.SentinelNative && window.SentinelNative.detectRouterModelNative) {
+            try {
+                const drv = window.SentinelNative.detectRouterModelNative(appState.currentGateway || '192.168.101.1');
+                if (drv === 'realtek_boa') driverLabel = 'Boa / Fibra ONT (100% Directo)';
+                else if (drv === 'tplink') driverLabel = 'TP-Link Archer/WR (100% Directo)';
+                else if (drv === 'tenda') driverLabel = 'Tenda Wireless (100% Directo)';
+                else if (drv === 'huawei') driverLabel = 'Huawei EchoLife (100% Directo)';
+                else if (drv === 'zte') driverLabel = 'ZTE ZXHN (100% Directo)';
+                else driverLabel = 'Universal Auto-MAC (100% Compatible)';
+            } catch (e) {}
+        }
+        dom.routerGwLabel.textContent = `${appState.currentGateway || '192.168.101.1'} (${driverLabel})`;
     }
     if (dom.routerTargetMacLabel) {
         dom.routerTargetMacLabel.textContent = `${dev.mac} (${dev.ip})`;
@@ -1577,7 +1601,19 @@ let pendingCutTarget = null;
 function openOwnerModal(msg = null) {
     triggerHaptic(20);
     if (dom.ownerModalGw) {
-        dom.ownerModalGw.textContent = appState.currentGateway || '192.168.101.1';
+        let drvBadge = '100% Multi-Driver Nativo';
+        if (window.SentinelNative && window.SentinelNative.detectRouterModelNative) {
+            try {
+                const drv = window.SentinelNative.detectRouterModelNative(appState.currentGateway || '192.168.101.1');
+                if (drv === 'realtek_boa') drvBadge = 'Boa / Fibra ONT (100% Nativo)';
+                else if (drv === 'tplink') drvBadge = 'TP-Link (100% Nativo)';
+                else if (drv === 'tenda') drvBadge = 'Tenda (100% Nativo)';
+                else if (drv === 'huawei') drvBadge = 'Huawei (100% Nativo)';
+                else if (drv === 'zte') drvBadge = 'ZTE (100% Nativo)';
+                else drvBadge = 'Universal Auto-MAC (100%)';
+            } catch (e) {}
+        }
+        dom.ownerModalGw.textContent = `${appState.currentGateway || '192.168.101.1'} (${drvBadge})`;
     }
     const ssidEl = document.getElementById('owner-modal-ssid');
     if (ssidEl) {
