@@ -1,0 +1,9 @@
+{
+  "blocked": {},
+  "whitelist": {},
+  "aliases": {},
+  "router_creds": {
+    "username": "admin",
+    "password": "admin"
+  }
+}

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>WiFi Sentinel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Pantalla de Inicio / Splash Screen Minimalista Premium -->
+    <div id="app-splash-screen" class="splash-screen" role="status" aria-label="WiFi Sentinel">
+        <div class="splash-content">
+            <div class="splash-logo-wrap">
+                <div class="splash-radar-pulse"></div>
+                <div class="splash-logo-box">
+                    <svg class="splash-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <line x1="12" y1="12" x2="18.36" y2="5.64"></line>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="splash-title">WiFi Sentinel</h1>
+        </div>
+    </div>
+
+    <!-- Barra Superior con Detección Dinámica de Red -->
+    <header class="top-bar" role="banner">
+        <div class="top-bar-brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <circle cx="12" cy="12" r="3.5"></circle>
+                    <line x1="12" y1="12" x2="18.36" y2="5.64"></line>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1 class="app-title">WiFi Sentinel</h1>
+                <div class="live-subline">
+                    <span class="live-dot" aria-hidden="true"></span>
+                    <span class="app-net-sub tabular" id="header-net-label">Detectando red activa...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="top-bar-controls">
+            <button id="btn-owner-badge" class="badge-pill lock" type="button" aria-label="Estado de autorización de Dueño" title="Toca para verificar identidad de dueño">
+                <span class="owner-icon-container" aria-hidden="true">
+                    <svg class="owner-badge-icon lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </span>
+                <span id="owner-status-label"><span class="badge-text-full">Modo Monitor</span><span class="badge-text-short">Monitor</span></span>
+            </button>
+            <button id="btn-guide" class="icon-btn" type="button" aria-label="Abrir guía de funciones y ayuda" title="Guía de funciones y ayuda">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </button>
+            <button id="btn-theme" class="icon-btn" type="button" aria-label="Cambiar tema blanco o negro" title="Tema Blanco / Negro OLED">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+            <button id="btn-audio" class="icon-btn" type="button" aria-label="Activar o silenciar sonido" title="Sonido de radar">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+            <button id="btn-scan" class="btn-solid" type="button">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                <span id="scan-btn-label">Escanear</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Línea de progreso de escaneo -->
+    <div id="scan-strip" class="scan-strip" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="scan-strip-bar" id="scan-strip-bar"></div>
+    </div>
+
+    <!-- Tira Arquitectónica de Métricas -->
+    <section class="summary-strip" aria-label="Resumen de red">
+        <button type="button" class="summary-cell" data-jump-filter="all">
+            <span class="summary-value tabular" id="stat-total">0</span>
+            <span class="summary-caption">Conectados</span>
+        </button>
+        <button type="button" class="summary-cell" data-jump-filter="safe">
+            <span class="summary-value tabular val-safe" id="stat-safe">0</span>
+            <span class="summary-caption">Verificados</span>
+        </button>
+        <button type="button" class="summary-cell" data-jump-filter="suspect">
+            <span class="summary-value tabular val-warn" id="stat-suspicious">0</span>
+            <span class="summary-caption">Revisión</span>
+        </button>
+        <button type="button" class="summary-cell" data-jump-filter="blocked">
+            <span class="summary-value tabular val-danger" id="stat-blocked">0</span>
+            <span class="summary-caption">Aislados</span>
+        </button>
+    </section>
+
+    <!-- Navegación Desktop / Tablet -->
+    <nav class="desktop-tabs" role="tablist" aria-label="Secciones de la aplicación">
+        <button type="button" class="tab-link active" data-view="view-radar" role="tab" aria-selected="true">Radar y control</button>
+        <button type="button" class="tab-link" data-view="view-devices" role="tab" aria-selected="false">Equipos (<span id="tab-count-devices" class="tabular">0</span>)</button>
+        <button type="button" class="tab-link" data-view="view-audit" role="tab" aria-selected="false">Espectro y seguridad</button>
+        <button type="button" class="tab-link" data-view="view-terminal" role="tab" aria-selected="false">Reglas y registro</button>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <main class="workspace">
+
+        <!-- ================= VISTA 1: RADAR INMERSIVO A PANTALLA COMPLETA ================= -->
+        <section id="view-radar" class="view-pane active">
+            <div class="radar-cockpit">
+
+                <!-- Lienzo de Radar a Pantalla Completa sin Recortes -->
+                <div class="radar-fullscreen-bleed">
+                    <div class="radar-floating-top">
+                        <div class="segmented-control" role="group" aria-label="Modo de escaneo">
+                            <button type="button" class="seg-btn active" data-scanmode="fast">ARP</button>
+                            <button type="button" class="seg-btn" data-scanmode="deep">TCP</button>
+                            <button type="button" class="seg-btn" data-scanmode="auto">Auto 15s</button>
+                        </div>
+                        <button type="button" class="btn-danger-sm" id="btn-panic"><svg class="btn-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Cortar intrusos</button>
+                    </div>
+
+                    <div class="radar-canvas-viewport" id="radar-viewport">
+                        <canvas id="radar-canvas" width="720" height="720"></canvas>
+                        <div class="radar-corner top-l tabular" id="radar-mode-readout">SUBRED ACTIVA</div>
+                        <div class="radar-corner top-r tabular" id="azimuth-display">000°</div>
+                        <div class="radar-corner bot-l tabular" id="gw-display">GW .1</div>
+                        <div class="radar-corner bot-r tabular" id="blip-count-display">0 NODOS</div>
+                    </div>
+
+                    <!-- Selector Táctil Rápido de Objetivos en el Radar -->
+                    <div class="radar-node-chips" id="radar-node-chips" role="group" aria-label="Seleccionar objetivo en radar"></div>
+                </div>
+
+                <!-- Panel Dock del Objetivo Seleccionado y Diagnóstico Rápido -->
+                <div class="radar-dock-column">
+                    <div id="radar-selected-drawer" class="inline-inspector"></div>
+
+                    <!-- Asistente y Sugerencia Inteligente en Vivo -->
+                    <div class="advisor-card" id="smart-advisor-card">
+                        <div class="advisor-head">
+                            <span class="advisor-kicker">SUGERENCIA INTELIGENTE</span>
+                            <button type="button" class="link-action" id="btn-open-guide-inline">¿Cómo funciona la app?</button>
+                        </div>
+                        <div class="advisor-title" id="advisor-title">Analizando tu red WiFi...</div>
+                        <p class="advisor-desc" id="advisor-desc">Toca cualquier punto del radar o chip inferior para inspeccionar un equipo, medir su respuesta o cortarle el internet desde el router.</p>
+                        <div class="advisor-actions">
+                            <button type="button" class="btn-solid-sm" id="btn-advisor-primary">Ver intruso .85</button>
+                            <button type="button" class="btn-outline-sm" id="btn-advisor-guide">Abrir guía paso a paso</button>
+                        </div>
+                    </div>
+
+                    <!-- Acciones Rápidas de Seguridad para Clientes (1 Toque) -->
+                    <div class="quick-tools-grid">
+                        <button type="button" class="quick-tool-card" id="btn-quick-speed">
+                            <span class="qt-title">Test de estabilidad y velocidad</span>
+                            <span class="qt-sub tabular" id="qt-speed-val">Medir enlace WiFi, ping y jitter</span>
+                        </button>
+                        <button type="button" class="quick-tool-card" id="btn-quick-cams">
+                            <span class="qt-title">Detector de cámaras e IoT espía</span>
+                            <span class="qt-sub tabular" id="qt-cams-val">Buscar puertos RTSP 554 / ONVIF</span>
+                        </button>
+                    </div>
+
+                    <button type="button" class="sponsor-card" data-sponsor="radar" aria-label="Abrir anuncio patrocinado">
+                        <span class="sponsor-kicker">ANUNCIO · Patrocinado</span>
+                        <span class="sponsor-cta">ABRIR ANUNCIO ↗</span>
+                    </button>
+
+                    <div class="kv-surface">
+                        <div class="kv-row">
+                            <span class="kv-key">Red WiFi conectada</span>
+                            <span class="kv-val mono tabular strong" id="t-active-ssid">WiFi Local</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Integridad ARP</span>
+                            <span class="kv-val badge-pill safe" id="t-arp-status">Verificada · Sin MITM</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Señal y frecuencia</span>
+                            <span class="kv-val mono tabular" id="t-wifi-signal">2.4 GHz · -54 dBm (99%)</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Puerta de enlace</span>
+                            <span class="kv-val mono tabular" id="t-gw-ip">192.168.101.1</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">BSSID del router</span>
+                            <span class="kv-val mono tabular" id="t-gw-mac">80:f7:a6:62:a5:dc</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">IP de este dispositivo</span>
+                            <span class="kv-val mono tabular" id="t-my-ip">192.168.101.74</span>
+                        </div>
+                    </div>
+
+                    <div class="section-bar spaced-top">
+                        <h2 class="section-heading">Equipos en la red actual</h2>
+                        <button type="button" class="link-action" id="btn-go-devices">Abrir directorio</button>
+                    </div>
+                    <div class="clean-list" id="recent-threats-list"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= VISTA 2: DIRECTORIO DE EQUIPOS ================= -->
+        <section id="view-devices" class="view-pane padded-pane">
+            <div class="directory-controls">
+                <div class="search-field">
+                    <svg class="icon search-glyph" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="search-device-input" placeholder="Buscar por nombre, IP, MAC o fabricante..." aria-label="Buscar dispositivos">
+                </div>
+
+                <div class="filter-scroll-row" role="group" aria-label="Filtrar dispositivos">
+                    <button type="button" class="pill-btn active" data-filter="all">Todos (<span id="filter-cnt-all" class="tabular">0</span>)</button>
+                    <button type="button" class="pill-btn" data-filter="safe">Verificados (<span id="filter-cnt-safe" class="tabular">0</span>)</button>
+                    <button type="button" class="pill-btn" data-filter="suspect">Revisión (<span id="filter-cnt-suspect" class="tabular">0</span>)</button>
+                    <button type="button" class="pill-btn" data-filter="blocked">Aislados (<span id="filter-cnt-blocked" class="tabular">0</span>)</button>
+                </div>
+
+                <div class="sort-row">
+                    <label for="sort-select" class="sort-label">Ordenar por</label>
+                    <select id="sort-select" class="select-clean">
+                        <option value="threat">Mayor nivel de riesgo</option>
+                        <option value="ip">Dirección IP (.1 → .254)</option>
+                        <option value="latency">Menor latencia (ms)</option>
+                        <option value="name">Nombre alfabético</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="device-directory" id="devices-cards-grid"></div>
+
+            <button type="button" class="sponsor-card" data-sponsor="devices" aria-label="Abrir anuncio patrocinado">
+                <span class="sponsor-kicker">ANUNCIO · Patrocinado</span>
+                <span class="sponsor-cta">ABRIR ANUNCIO ↗</span>
+            </button>
+        </section>
+
+        <!-- ================= VISTA 3: ESPECTRO WIFI, ANTI-MITM Y SONDAS ================= -->
+        <section id="view-audit" class="view-pane padded-pane">
+            <div class="tools-layout">
+
+                <!-- Columna 1: Analizador de Espectro de Canales WiFi + Radio -->
+                <div class="tool-block">
+                    <div class="section-bar">
+                        <h2 class="section-heading">Espectro de canal y radio WiFi</h2>
+                        <button type="button" class="btn-outline-sm" id="btn-refresh-wifi">Actualizar radio</button>
+                    </div>
+                    <div class="spectrum-box">
+                        <canvas id="spectrum-canvas" width="600" height="210"></canvas>
+                    </div>
+                    <div class="kv-surface" id="wifi-radio-table">
+                        <div class="kv-row">
+                            <span class="kv-key">Red y subred activa</span>
+                            <span class="kv-val mono tabular strong" id="wifi-subnet-val">192.168.101.0/24</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Banda y frecuencia</span>
+                            <span class="kv-val mono tabular" id="wifi-band-val">2.4 GHz (2432 MHz · Canal 5)</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Potencia RSSI y calidad</span>
+                            <span class="kv-val mono tabular strong" id="wifi-rssi-val">-54 dBm (99%)</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Velocidad de enlace físico</span>
+                            <span class="kv-val mono tabular" id="wifi-speed-val">130 Mbps</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">BSSID de antena</span>
+                            <span class="kv-val mono tabular" id="wifi-bssid-val">80:f7:a6:62:a5:dc</span>
+                        </div>
+                    </div>
+
+                    <div class="section-bar spaced-top">
+                        <h2 class="section-heading">Integridad ARP (Anti-MITM)</h2>
+                        <button type="button" class="btn-solid-sm" id="btn-run-audit">Auditar ARP</button>
+                    </div>
+                    <div class="status-banner" id="mitm-result-box">
+                        <div class="status-banner-head">
+                            <span class="node-glyph safe"></span>
+                            <span class="status-banner-title" id="mitm-indicator">Tabla ARP verificada y auténtica</span>
+                        </div>
+                        <p class="status-banner-body" id="mitm-detail-text">La MAC de la puerta de enlace pertenece únicamente al router principal. Sin ataques de intercepción.</p>
+                    </div>
+                </div>
+
+                <!-- Columna 2: Sonda Manual + Detector Cámaras + Router -->
+                <div class="tool-block">
+                    <div class="section-bar">
+                        <h2 class="section-heading">Sonda manual de IP, cámaras y puertos</h2>
+                    </div>
+                    <div class="probe-form">
+                        <input type="text" id="probe-ip-input" class="input-clean mono" value="192.168.101.85" placeholder="Ej: 192.168.1.1" aria-label="Dirección IP a probar">
+                        <button type="button" class="btn-outline-sm" id="btn-probe-ping">Ping 4x</button>
+                        <button type="button" class="btn-solid-sm" id="btn-probe-ports">Auditar puertos</button>
+                    </div>
+                    <div class="probe-output mono tabular" id="probe-output-box">Selecciona una IP y ejecuta Ping o Auditoría de puertos TCP.</div>
+
+                    <div class="section-bar spaced-top">
+                        <h2 class="section-heading">Bloqueador directo en el router (Auto-Inyección MAC)</h2>
+                    </div>
+                    <div class="kv-surface">
+                        <div class="kv-row">
+                            <span class="kv-key">Puerta de enlace activa</span>
+                            <span class="kv-val mono tabular strong" id="router-gw-label">192.168.101.1 (Boa / Realtek)</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">MAC objetivo a cortar</span>
+                            <span class="kv-val mono tabular strong" id="router-target-mac-label">2e:9c:5a:92:73:e9 (.85)</span>
+                        </div>
+                    </div>
+                    <div class="probe-form">
+                        <input type="text" id="router-user-input" class="input-clean mono" value="admin" placeholder="Usuario router" aria-label="Usuario del router">
+                        <input type="password" id="router-pass-input" class="input-clean mono" value="admin" placeholder="Clave router" aria-label="Contraseña del router">
+                        <button type="button" class="btn-outline-sm" id="btn-save-router-creds">Guardar clave</button>
+                    </div>
+                    <div class="probe-output mono tabular" id="router-inject-status">Listo para enviar dirección MAC a la Lista Negra (MAC Filtering / Control de Acceso WLAN) del router.</div>
+                    <div class="action-Button-group">
+                        <button type="button" class="btn-solid" id="btn-inject-router-mac">Cortar internet en el router (Auto-Inyección MAC)</button>
+                        <button type="button" class="btn-outline" id="btn-open-router-console">Abrir consola del router con Auto-Inyección JS</button>
+                        <button type="button" class="btn-outline" id="btn-copy-suspect-macs">Copiar MACs en revisión</button>
+                        <button type="button" class="btn-outline" id="btn-export-json">Copiar reporte JSON</button>
+                    </div>
+
+                    <div class="section-bar spaced-top">
+                        <h2 class="section-heading">Actualizaciones de la aplicación</h2>
+                        <button type="button" class="btn-outline-sm" id="btn-check-updates">Buscar actualización</button>
+                    </div>
+                    <div class="kv-surface">
+                        <div class="kv-row">
+                            <span class="kv-key">Versión instalada</span>
+                            <span class="kv-val mono tabular strong" id="app-installed-version">v4.0.0 (Build 4)</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Canal de actualización</span>
+                            <span class="kv-val mono tabular">GitHub Releases (OTA Automático)</span>
+                        </div>
+                    </div>
+
+                    <div class="section-bar spaced-top">
+                        <h2 class="section-heading">Ajustes de anuncios</h2>
+                    </div>
+                    <label class="setting-row" for="toggle-adult-ads">
+                        <span class="setting-text">
+                            <span class="setting-title">Anuncios para Mayores (+18)</span>
+                            <span class="setting-sub" id="adult-ads-sub">Desactivado: solo anuncios limpios</span>
+                        </span>
+                        <input type="checkbox" id="toggle-adult-ads" class="switch-input" role="switch">
+                        <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+                    </label>
+                    <button type="button" class="sponsor-card" data-sponsor="audit" aria-label="Abrir anuncio patrocinado">
+                        <span class="sponsor-kicker">ANUNCIO · Patrocinado</span>
+                        <span class="sponsor-cta">ABRIR ANUNCIO ↗</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= VISTA 4: REGLAS ACTIVAS Y BITÁCORA ================= -->
+        <section id="view-terminal" class="view-pane padded-pane">
+            <div class="tools-layout">
+                <div class="tool-block">
+                    <div class="section-bar">
+                        <h2 class="section-heading">Reglas de aislamiento y confianza</h2>
+                        <button type="button" class="btn-outline-sm" id="btn-unblock-all">Restaurar todos</button>
+                    </div>
+                    <div class="clean-list" id="active-rules-list"></div>
+                </div>
+
+                <div class="tool-block">
+                    <div class="section-bar">
+                        <h2 class="section-heading">Bitácora de eventos</h2>
+                        <button type="button" class="btn-outline-sm" id="btn-clear-term">Limpiar</button>
+                    </div>
+                    <div class="log-stream mono tabular" id="main-terminal-body"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Barra de Navegación Inferior Móvil -->
+    <nav class="bottom-nav" role="navigation" aria-label="Navegación principal">
+        <button type="button" class="bnav-btn active" data-view="view-radar">
+            <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9"></circle>
+                <circle cx="12" cy="12" r="3.5"></circle>
+                <line x1="12" y1="12" x2="18.36" y2="5.64"></line>
+            </svg>
+            <span>Radar</span>
+        </button>
+        <button type="button" class="bnav-btn" data-view="view-devices">
+            <svg class="icon" viewBox="0 0 24 24">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+            <span>Equipos</span>
+        </button>
+        <button type="button" class="bnav-btn" data-view="view-audit">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Seguridad</span>
+        </button>
+        <button type="button" class="bnav-btn" data-view="view-terminal">
+            <svg class="icon" viewBox="0 0 24 24">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span>Registro</span>
+        </button>
+    </nav>
+
+    <!-- Modal Editorial: Guía Interactiva de Funciones y Sugerencias -->
+    <div id="guide-modal" class="guide-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title">
+        <div class="guide-sheet">
+            <div class="guide-header">
+                <div>
+                    <span class="advisor-kicker">MANUAL RÁPIDO PARA EL USUARIO</span>
+                    <h2 class="guide-title" id="guide-modal-title">Guía de funciones y recomendaciones</h2>
+                </div>
+                <button type="button" class="btn-outline-sm" id="btn-close-guide">Cerrar</button>
+            </div>
+
+            <div class="guide-body">
+                <div class="guide-section">
+                    <h3 class="guide-sec-title">1. ¿Qué significan los colores y figuras del radar?</h3>
+                    <div class="guide-legend-list">
+                        <div class="guide-legend-item">
+                            <span class="node-glyph safe"></span>
+                            <div>
+                                <strong>Verde (Verificado):</strong> Router principal, tu propio teléfono o equipos que marcaste como confiables.
+                            </div>
+                        </div>
+                        <div class="guide-legend-item">
+                            <span class="node-glyph warn"></span>
+                            <div>
+                                <strong>Ámbar (MAC Privada / Revisión):</strong> Celulares modernos que ocultan su número de fábrica por privacidad. Si sabes de quién es, toca <strong>Apodo</strong> para ponerle nombre y luego <strong>Confiar</strong>.
+                            </div>
+                        </div>
+                        <div class="guide-legend-item">
+                            <span class="node-glyph danger"></span>
+                            <div>
+                                <strong>Rojo (Riesgo alto / Desconocido):</strong> Equipo sin nombre identificable y con MAC oculta o puertos expuestos. Si no lo reconoces, toca <strong>Cortar Internet</strong>.
+                            </div>
+                        </div>
+                        <div class="guide-legend-item">
+                            <span class="node-glyph square"></span>
+                            <div>
+                                <strong>Cuadrado sólido (Aislado / Sin internet):</strong> Equipo bloqueado en la Lista Negra MAC de tu router.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3 class="guide-sec-title">2. ¿Para qué sirve cada botón de control?</h3>
+                    <div class="guide-cards-list">
+                        <div class="guide-item-card">
+                            <div class="guide-item-head">Cortar Internet vs Restaurar Internet</div>
+                            <p class="guide-item-text">Conecta automáticamente con tu router (puerta de enlace <code>.1</code>) e inyecta la dirección física (MAC) del intruso en la Lista Negra del router para dejarlo sin WiFi de raíz. Tu propio celular y el router están protegidos para que nunca te quedes sin internet por error.</p>
+                        </div>
+                        <div class="guide-item-card">
+                            <div class="guide-item-head">Auto-MAC Router (Consola visual)</div>
+                            <p class="guide-item-text">Abre la tabla interna de bloqueo de tu router dentro de la app con una barra superior flotante (<code>← Sentinel</code>, <code>Tabla MAC</code> y <code>Cortar MAC</code>) por si deseas ver o administrar las reglas directamente en el router.</p>
+                        </div>
+                        <div class="guide-item-card">
+                            <div class="guide-item-head">Modos ARP · TCP · Auto 15s</div>
+                            <p class="guide-item-text"><strong>ARP</strong> hace un barrido instantáneo en menos de 1 segundo; <strong>TCP</strong> inspecciona puertos abiertos; <strong>Auto 15s</strong> mantiene el radar vigilando automáticamente cada 15 segundos y te avisa si entra alguien nuevo.</p>
+                        </div>
+                        <div class="guide-item-card">
+                            <div class="guide-item-head">Ping 4x · Puertos · Detector de cámaras</div>
+                            <p class="guide-item-text"><strong>Ping 4x</strong> mide en milisegundos qué tan rápido responde un aparato; <strong>Puertos</strong> y <strong>Detector de cámaras</strong> buscan transmisiones de video ocultas (puerto <code>554 RTSP</code> / <code>ONVIF</code>).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3 class="guide-sec-title">3. Recomendación paso a paso (30 segundos)</h3>
+                    <ol class="guide-steps">
+                        <li>Toca <strong>Escanear</strong> arriba a la derecha al conectarte a cualquier red WiFi.</li>
+                        <li>Ve a la pestaña <strong>Equipos</strong> y ponle un <strong>Apodo</strong> y toca <strong>Confiar</strong> en los celulares o televisores de tu familia.</li>
+                        <li>Cualquier equipo que quede en <strong>Revisión</strong> o <strong>Riesgo</strong> sin nombre es un desconocido: selecciónalo y toca <strong>Cortar Internet</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="guide-footer">
+                <button type="button" class="btn-solid" id="btn-guide-got-it">Entendido, volver al radar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Desafío de Acceso al Módem (Verificación de Dueño del WiFi) -->
+    <div id="owner-auth-modal" class="guide-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="owner-modal-title">
+        <div class="guide-sheet">
+            <div class="guide-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--status-warn-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg class="icon" viewBox="0 0 24 24" style="stroke: var(--status-warn); width: 20px; height: 20px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="advisor-kicker">CONTROL DE AUTORIZACIÓN</span>
+                        <h2 class="guide-title" id="owner-modal-title">Confirmar Dueño del WiFi</h2>
+                    </div>
+                </div>
+                <button type="button" class="btn-outline-sm" id="btn-close-owner-modal">Cerrar</button>
+            </div>
+
+            <div class="guide-body">
+                <div class="guide-section">
+                    <p class="guide-item-text">
+                        Cada módem tiene su propia cuenta y contraseña de administración (impresas en la etiqueta física debajo del router o configuradas por el titular). Para cortar el internet a intrusos en esta red, <strong>debes ingresar la contraseña de este módem específico</strong>.
+                    </p>
+                </div>
+
+                <div class="guide-section">
+                    <h3 class="guide-sec-title">Módem de la Red Actual</h3>
+                    <div class="kv-surface">
+                        <div class="kv-row">
+                            <span class="kv-key">Red WiFi conectada</span>
+                            <span class="kv-val mono tabular strong" id="owner-modal-ssid">FAMILIASH</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">Puerta de enlace detectada</span>
+                            <span class="kv-val mono tabular strong" id="owner-modal-gw">192.168.101.1</span>
+                        </div>
+                        <div class="kv-row">
+                            <span class="kv-key">BSSID del módem</span>
+                            <span class="kv-val mono tabular" id="owner-modal-bssid">--</span>
+                        </div>
+                    </div>
+
+                    <div class="owner-inputs-stack" style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <label for="owner-user-input" class="tech-label" style="display:block; margin-bottom: 4px;">Usuario del módem actual</label>
+                            <input type="text" id="owner-user-input" class="input-clean mono" value="admin" placeholder="Ej: admin" aria-label="Usuario administrador del router">
+                        </div>
+                        <div>
+                            <label for="owner-pass-input" class="tech-label" style="display:block; margin-bottom: 4px;">Contraseña de este módem (etiqueta del router)</label>
+                            <input type="password" id="owner-pass-input" class="input-clean mono" placeholder="Clave del módem actual" aria-label="Contraseña administrador del router">
+                        </div>
+                    </div>
+
+                    <div class="probe-output mono tabular" id="owner-verify-status" style="margin-top: 12px;">
+                        Introduce la clave de este módem para poder cortar el internet a los intrusos.
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <div class="action-button-group" style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" class="btn-solid" id="btn-submit-owner-verify">
+                            Verificar con el módem
+                        </button>
+                        <button type="button" class="btn-outline-sm hidden" id="btn-logout-owner" style="border-color: var(--status-critical); color: var(--status-critical); width: 100%; justify-content: center; padding: 8px;">
+                            Cerrar sesión (Volver a Modo Monitor)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; color: var(--ink-secondary);">Solo lectura si no eres el titular</span>
+                <button type="button" class="btn-outline-sm" id="btn-cancel-owner-verify">Continuar en Modo Monitor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nueva Actualización Disponible (GitHub OTA) -->
+    <div id="update-modal" class="guide-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="update-modal-title">
+        <div class="guide-sheet" style="max-width: 440px;">
+            <div class="guide-header">
+                <div>
+                    <span class="advisor-kicker">ACTUALIZACIÓN DISPONIBLE</span>
+                    <h2 class="guide-title" id="update-modal-title">WiFi Sentinel</h2>
+                </div>
+                <button type="button" class="btn-outline-sm" id="btn-close-update">Cerrar</button>
+            </div>
+            <div class="guide-body">
+                <div class="guide-section">
+                    <p class="guide-item-text" id="update-modal-summary">Hay una nueva versión disponible con mejoras de seguridad y estabilidad.</p>
+                    <div class="probe-output mono tabular" id="update-changelog-box" style="white-space: pre-wrap; font-size: 12px; margin-top: 8px;">
+• Mejoras generales de seguridad
+                    </div>
+                </div>
+                <div id="update-progress-container" class="hidden" style="margin-top: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-family: var(--font-mono);">
+                        <span id="update-progress-label">Descargando...</span>
+                        <span id="update-progress-percent">0%</span>
+                    </div>
+                    <div style="height: 6px; background: var(--bg-muted); border-radius: 9999px; overflow: hidden;">
+                        <div id="update-progress-bar" style="width: 0%; height: 100%; background: var(--status-safe-ink); transition: width 150ms ease;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="guide-footer" style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="btn-outline-sm" id="btn-update-later">Más tarde</button>
+                <button type="button" class="btn-solid" id="btn-update-download">Descargar e Instalar ↗</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Verificación de edad para anuncios -->
+    <div id="age-modal" class="guide-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="age-modal-title">
+        <div class="guide-sheet age-sheet">
+            <div class="guide-header">
+                <div>
+                    <span class="advisor-kicker">PREFERENCIA DE ANUNCIOS</span>
+                    <h2 class="guide-title" id="age-modal-title">¿Eres mayor de 18 años?</h2>
+                </div>
+            </div>
+            <div class="guide-body">
+                <p class="guide-item-text">WiFi Sentinel es gratis gracias a anuncios patrocinados. Si respondes <strong>No</strong>, solo verás anuncios limpios. Puedes cambiarlo cuando quieras en <strong>Seguridad › Ajustes de anuncios</strong>.</p>
+            </div>
+            <div class="guide-footer age-actions">
+                <button type="button" class="btn-outline" id="btn-age-no">No</button>
+                <button type="button" class="btn-solid" id="btn-age-yes">Sí, soy mayor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación Toast Flotante -->
+    <div id="toast-banner" class="toast-banner hidden" role="status" aria-live="polite"></div>
+
+    <script src="audio.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# Android Build artifacts
+android_app/build/
+android_app/obj/
+android_app/gen/
+android_app/dex_out/
+android_app/wifi-sentinel-aligned.apk
+
+# Keystore (mantener protegido fuera de commits si se desea, o ignorar temporales)
+*.idsig
+*.tmp
+.git_token*
